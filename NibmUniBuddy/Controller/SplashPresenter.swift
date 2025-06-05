@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 
 
-final class SplashController: ObservableObject {
+final class SplashPresenter: ObservableObject {
     @Published var isFinishedLoading: Bool = false
     private let model = SplashModel()
     

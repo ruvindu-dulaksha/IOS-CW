@@ -9,13 +9,13 @@ import SwiftUI
 import Lottie
 
 struct SplashView: View {
-    @StateObject private var splashController = SplashController()
+    @StateObject private var splashPresenter = SplashPresenter()
     
     
     var body: some View {
         ZStack() {
             
-            if splashController.isFinishedLoading {
+            if splashPresenter.isFinishedLoading {
                 OnboardingView()
                     .transition(.opacity.animation(.easeInOut(duration: 0.6)))
             } else {
@@ -23,21 +23,21 @@ struct SplashView: View {
                     .ignoresSafeArea()
                 
                 VStack {
-                    Image(splashController.logoImageName)
+                    Image(splashPresenter.logoImageName)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 250, height: 250)
                     
-                    LottieView(filename: splashController.lottieAnimation)
+                    LottieView(filename: splashPresenter.lottieAnimation)
                         .frame(width: 80, height: 80)
                         .padding(.top, 30)
                 }
                 .transition(.opacity)
             }
         }
-        .animation(.easeInOut(duration: 0.6), value: splashController.isFinishedLoading)
+        .animation(.easeInOut(duration: 0.6), value: splashPresenter.isFinishedLoading)
         .onAppear {
-            splashController.onAppear()
+            splashPresenter.onAppear()
         }
     }
     
