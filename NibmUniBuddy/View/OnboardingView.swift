@@ -38,7 +38,7 @@ struct OnboardingView: View {
                 .foregroundColor(.mainBlue)
                 .padding(.top, 20)
             
-            Image(presenter.model.imageName) // Replace with your actual asset name
+            Image(presenter.model.imageName)
                 .resizable()
                 .scaledToFit()
                 .frame(width: 250, height: 250)
