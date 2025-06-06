@@ -61,7 +61,7 @@ struct OnboardingView: View {
             Button(action: presenter.getStartedTapped) {
                 Text(presenter.model.buttonTitle)
                     .fontWeight(.semibold)
-                    .frame(maxWidth: .infinity)
+                    .frame(width: 300, height: 20)
                     .padding()
                     .background(Color.mainBlue)
                     .foregroundColor(.white)
