@@ -1,51 +1,52 @@
 import SwiftUI
 
+struct Profile {
+    var name: String
+    var email: String
+    var department: String
+    var studentID: String
+    var phone: String
+    var password: String
+    var imageData: Data?
+}
+
 struct ContentView: View {
+    @State private var profile = Profile(
+        name: "Itunoluwa Abidoye",
+        email: "Itunoluwa@petra.africa",
+        department: "Technology",
+        studentID: "conbsn21.tp-033",
+        phone: "+98 1245560090",
+        password: "********",
+        imageData: nil // Start with no image
+    )
+    @State private var showingEdit = false
+
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                
-                // Profile Image - Option 1: Using SF Symbol as placeholder
-                Image(systemName: "person.crop.circle.fill")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 100, height: 100)
-                    .foregroundColor(.gray)
-                    .background(Color.gray.opacity(0.2))
-                    .clipShape(Circle())
-                    .shadow(radius: 5)
-                
-                // Alternative Option 2: If you have an actual image asset
-                // Make sure to add your image to Assets.xcassets first
-                /*
-                Image("ProfileImage") // Make sure this matches your asset name exactly
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 100, height: 100)
-                    .clipShape(Circle())
-                    .shadow(radius: 5)
-                */
-                
-                // Alternative Option 3: Using AsyncImage for web images
-                /*
-                AsyncImage(url: URL(string: "https://your-image-url.com/profile.jpg")) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Image(systemName: "person.crop.circle.fill")
-                        .foregroundColor(.gray)
+                // Profile Image (shows picked image, or fallback asset)
+                Group {
+                    if let imageData = profile.imageData,
+                       let uiImage = UIImage(data: imageData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } else {
+                        Image("ProfileImage") // fallback asset
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    }
                 }
                 .frame(width: 100, height: 100)
                 .clipShape(Circle())
                 .shadow(radius: 5)
-                */
 
                 // Name and Email
                 VStack(spacing: 5) {
-                    Text("Itunoluwa Abidoye")
+                    Text(profile.name)
                         .font(.headline)
-                    Text("Itunoluwa@petra.africa")
+                    Text(profile.email)
                         .font(.subheadline)
                         .foregroundColor(.gray)
                 }
@@ -53,59 +54,43 @@ struct ContentView: View {
                 // Details Grid (2 Columns)
                 VStack(spacing: 20) {
                     HStack(alignment: .top, spacing: 30) {
-                        
                         // Left Column
                         VStack(alignment: .leading, spacing: 20) {
                             HStack {
                                 Image(systemName: "building.2.fill")
-                                    .frame(width: 24)
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Department")
-                                        .font(.subheadline)
-                                        .bold()
-                                    Text("Technology")
+                                    Text("Department").bold()
+                                    Text(profile.department)
                                         .font(.caption)
                                         .foregroundColor(.gray)
                                 }
                             }
-
                             HStack {
                                 Image(systemName: "person.fill")
-                                    .frame(width: 24)
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Student ID")
-                                        .font(.subheadline)
-                                        .bold()
-                                    Text("conbsn21.tp-033")
+                                    Text("Student ID").bold()
+                                    Text(profile.studentID)
                                         .font(.caption)
                                         .foregroundColor(.gray)
                                 }
                             }
                         }
-
                         // Right Column
                         VStack(alignment: .leading, spacing: 20) {
                             HStack {
                                 Image(systemName: "phone.fill")
-                                    .frame(width: 24)
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Phone no.")
-                                        .font(.subheadline)
-                                        .bold()
-                                    Text("+98 1245560090")
+                                    Text("Phone no.").bold()
+                                    Text(profile.phone)
                                         .font(.caption)
                                         .foregroundColor(.gray)
                                 }
                             }
-
                             HStack {
                                 Image(systemName: "lock.fill")
-                                    .frame(width: 24)
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Password")
-                                        .font(.subheadline)
-                                        .bold()
-                                    Text("********")
+                                    Text("Password").bold()
+                                    Text(profile.password)
                                         .font(.caption)
                                         .foregroundColor(.gray)
                                 }
@@ -145,9 +130,7 @@ struct ContentView: View {
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.black)
                 },
-                trailing: Button(action: {
-                    // Handle edit profile
-                }) {
+                trailing: Button(action: { showingEdit = true }) {
                     Image(systemName: "pencil")
                         .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.black)
@@ -157,17 +140,12 @@ struct ContentView: View {
                 ToolbarItem(placement: .principal) {
                     Text("Profile")
                         .font(.system(size: 24, weight: .heavy))
-                        .foregroundColor(Color(red: 32/255, green: 64/255, blue: 133/255)) // #204085
-                        .padding(.top, 50) // Adjust vertical alignment if needed
+                        .foregroundColor(Color(red: 32/255, green: 64/255, blue: 133/255))
+                        .padding(.top, 50)
                 }
             }
-            .onAppear {
-                // Optional background color setup
-                let appearance = UINavigationBarAppearance()
-                appearance.configureWithOpaqueBackground()
-                appearance.backgroundColor = UIColor.white
-                UINavigationBar.appearance().standardAppearance = appearance
-                UINavigationBar.appearance().scrollEdgeAppearance = appearance
+            .sheet(isPresented: $showingEdit) {
+                EditProfileView(profile: $profile)
             }
         }
     }
