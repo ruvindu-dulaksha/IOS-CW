@@ -35,7 +35,7 @@ class ForgetPasswordPresenter: ObservableObject {
             return
         }
 
-        // Simulate sending OTP
+        
         print("Simulated OTP Sent: \(expectedOTP) to \(email)")
         showOTPModal = true
     }

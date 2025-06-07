@@ -28,7 +28,7 @@ struct OnboardingModel {
     
 }
 
-//state mark - the Controller to tell the View where to go next
+
 enum OnboardingState {
     case loading
     case ready

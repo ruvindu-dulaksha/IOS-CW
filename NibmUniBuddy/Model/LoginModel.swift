@@ -14,6 +14,7 @@ struct UserModel {
 
 class UserStorage {
     static let shared = UserStorage()
+   
     
     private(set) var users: [UserModel] = [
         UserModel(email: "dulaksha@student.nibm.lk", password: "Dulaksha@123"),

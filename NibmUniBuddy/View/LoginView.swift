@@ -10,6 +10,7 @@ import SwiftUI
 struct LoginView: View {
     @State private var navigateToSignUp = false
     @State private var navigateToForgetPassword = false
+    @State private var navigateToHome = false
 
     @StateObject private var loginPresenter = LoginPresenter()
     
@@ -54,11 +55,11 @@ struct LoginView: View {
                     }
                     .padding(.horizontal, 24)
                 }
+                
                 HStack{
                     Spacer()
                     Button("Forget Password?"){
                         navigateToForgetPassword = true
-
                     }
                     .font(.footnote)
                     .foregroundColor(.subGreycolor)
@@ -70,11 +71,9 @@ struct LoginView: View {
                         .navigationBarBackButtonHidden(true)
                 }
 
-
                 if showFields {
                     PrimaryButtonView(buttonText: "Login") {
                         loginPresenter.login()
-                       // print("login")
                     }
                     .padding(.horizontal, 24)
                 }
@@ -88,7 +87,7 @@ struct LoginView: View {
 
                 if showFields {
                     HStack {
-                        Text("Don’t have an account?")
+                        Text("Don't have an account?")
                             .font(.footnote)
                             .foregroundColor(.subGreycolor)
                         Button("Sign Up") {
@@ -111,11 +110,20 @@ struct LoginView: View {
                     withAnimation(.easeOut(duration: 0.6)) { showFields = true }
                 }
             }
+            .onChange(of: loginPresenter.isAuthenticated) { oldValue, newValue in
+                if newValue {
+                    navigateToHome = true
+                }
+            }
             .padding()
             .background(Color(.systemBackground).ignoresSafeArea())
            
             .navigationDestination(isPresented: $navigateToSignUp) {
                 SignUpView()
+                    .navigationBarBackButtonHidden(true)
+            }
+            .navigationDestination(isPresented: $navigateToHome) {
+                MainTabView()
                     .navigationBarBackButtonHidden(true)
             }
         }
@@ -126,8 +134,4 @@ struct LoginView: View {
     LoginView()
 }
 
-
-#Preview {
-    LoginView()
-}
 
