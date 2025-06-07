@@ -18,14 +18,14 @@ struct ContentView: View {
         studentID: "conbsn21.tp-033",
         phone: "+98 1245560090",
         password: "********",
-        imageData: nil // Start with no image
+        imageData: nil
     )
     @State private var showingEdit = false
 
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                // Profile Image (shows picked image, or fallback asset)
+                
                 Group {
                     if let imageData = profile.imageData,
                        let uiImage = UIImage(data: imageData) {
@@ -33,7 +33,7 @@ struct ContentView: View {
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                     } else {
-                        Image("ProfileImage") // fallback asset
+                        Image("ProfileImage")
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                     }
@@ -42,7 +42,7 @@ struct ContentView: View {
                 .clipShape(Circle())
                 .shadow(radius: 5)
 
-                // Name and Email
+                
                 VStack(spacing: 5) {
                     Text(profile.name)
                         .font(.headline)
@@ -51,10 +51,10 @@ struct ContentView: View {
                         .foregroundColor(.gray)
                 }
 
-                // Details Grid (2 Columns)
+                
                 VStack(spacing: 20) {
                     HStack(alignment: .top, spacing: 30) {
-                        // Left Column
+                        
                         VStack(alignment: .leading, spacing: 20) {
                             HStack {
                                 Image(systemName: "building.2.fill")
@@ -75,7 +75,7 @@ struct ContentView: View {
                                 }
                             }
                         }
-                        // Right Column
+                        
                         VStack(alignment: .leading, spacing: 20) {
                             HStack {
                                 Image(systemName: "phone.fill")
@@ -104,17 +104,17 @@ struct ContentView: View {
 
                 Spacer()
 
-                // Logout Button (centered and fixed width)
+                
                 HStack {
                     Spacer()
                     Button(action: {
-                        // Logout logic here
+                        
                     }) {
                         Text("Log Out")
                             .foregroundColor(.white)
                             .padding()
                             .frame(width: 200)
-                            .background(Color(red: 32/255, green: 64/255, blue: 133/255)) // #204085
+                            .background(Color(red: 32/255, green: 64/255, blue: 133/255))
                             .cornerRadius(10)
                     }
                     Spacer()
@@ -124,7 +124,7 @@ struct ContentView: View {
             .padding(.top)
             .navigationBarItems(
                 leading: Button(action: {
-                    // Handle back
+                    
                 }) {
                     Text("< Back")
                         .font(.system(size: 16, weight: .medium))
