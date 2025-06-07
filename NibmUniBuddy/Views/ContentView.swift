@@ -1,34 +1,81 @@
 import SwiftUI
 
-struct Profile {
+struct Profile: Codable {
     var name: String
     var email: String
     var department: String
     var studentID: String
     var phone: String
     var password: String
-    var imageData: Data?
+    var imageFilename: String? 
+}
+
+class ProfileStore: ObservableObject {
+    @Published var profile: Profile {
+        didSet {
+            saveProfile()
+        }
+    }
+
+    static let profileKey = "user_profile"
+
+    init() {
+        if let data = UserDefaults.standard.data(forKey: Self.profileKey),
+           let profile = try? JSONDecoder().decode(Profile.self, from: data) {
+            self.profile = profile
+        } else {
+      
+            self.profile = Profile(
+                name: "Itunoluwa Abidoye",
+                email: "Itunoluwa@petra.africa",
+                department: "Technology",
+                studentID: "conbsn21.tp-033",
+                phone: "+98 1245560090",
+                password: "********",
+                imageFilename: nil
+            )
+        }
+    }
+
+    func saveProfile() {
+        if let data = try? JSONEncoder().encode(profile) {
+            UserDefaults.standard.set(data, forKey: Self.profileKey)
+        }
+    }
+
+    func saveImage(_ data: Data) -> String? {
+        let filename = UUID().uuidString + ".jpg"
+        let url = getDocumentsDirectory().appendingPathComponent(filename)
+        do {
+            try data.write(to: url)
+            return filename
+        } catch {
+            print("Failed to save image: \(error)")
+            return nil
+        }
+    }
+
+    func loadImage(named filename: String) -> UIImage? {
+        let url = getDocumentsDirectory().appendingPathComponent(filename)
+        return UIImage(contentsOfFile: url.path)
+    }
+
+    func getDocumentsDirectory() -> URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    }
 }
 
 struct ContentView: View {
-    @State private var profile = Profile(
-        name: "Itunoluwa Abidoye",
-        email: "Itunoluwa@petra.africa",
-        department: "Technology",
-        studentID: "conbsn21.tp-033",
-        phone: "+98 1245560090",
-        password: "********",
-        imageData: nil
-    )
+    @StateObject private var store = ProfileStore()
     @State private var showingEdit = false
 
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                
+         
                 Group {
-                    if let imageData = profile.imageData,
-                       let uiImage = UIImage(data: imageData) {
+                    if let filename = store.profile.imageFilename,
+                       let uiImage = store.loadImage(named: filename) {
                         Image(uiImage: uiImage)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
@@ -42,25 +89,25 @@ struct ContentView: View {
                 .clipShape(Circle())
                 .shadow(radius: 5)
 
-                
+           
                 VStack(spacing: 5) {
-                    Text(profile.name)
+                    Text(store.profile.name)
                         .font(.headline)
-                    Text(profile.email)
+                    Text(store.profile.email)
                         .font(.subheadline)
                         .foregroundColor(.gray)
                 }
 
-                
+
                 VStack(spacing: 20) {
                     HStack(alignment: .top, spacing: 30) {
-                        
+                      
                         VStack(alignment: .leading, spacing: 20) {
                             HStack {
                                 Image(systemName: "building.2.fill")
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Department").bold()
-                                    Text(profile.department)
+                                    Text(store.profile.department)
                                         .font(.caption)
                                         .foregroundColor(.gray)
                                 }
@@ -69,19 +116,19 @@ struct ContentView: View {
                                 Image(systemName: "person.fill")
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Student ID").bold()
-                                    Text(profile.studentID)
+                                    Text(store.profile.studentID)
                                         .font(.caption)
                                         .foregroundColor(.gray)
                                 }
                             }
                         }
-                        
+              
                         VStack(alignment: .leading, spacing: 20) {
                             HStack {
                                 Image(systemName: "phone.fill")
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Phone no.").bold()
-                                    Text(profile.phone)
+                                    Text(store.profile.phone)
                                         .font(.caption)
                                         .foregroundColor(.gray)
                                 }
@@ -90,7 +137,7 @@ struct ContentView: View {
                                 Image(systemName: "lock.fill")
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Password").bold()
-                                    Text(profile.password)
+                                    Text(store.profile.password)
                                         .font(.caption)
                                         .foregroundColor(.gray)
                                 }
@@ -108,7 +155,7 @@ struct ContentView: View {
                 HStack {
                     Spacer()
                     Button(action: {
-                        
+                      
                     }) {
                         Text("Log Out")
                             .foregroundColor(.white)
@@ -124,7 +171,7 @@ struct ContentView: View {
             .padding(.top)
             .navigationBarItems(
                 leading: Button(action: {
-                    
+               
                 }) {
                     Text("< Back")
                         .font(.system(size: 16, weight: .medium))
@@ -145,7 +192,7 @@ struct ContentView: View {
                 }
             }
             .sheet(isPresented: $showingEdit) {
-                EditProfileView(profile: $profile)
+                EditProfileView(store: store)
             }
         }
     }

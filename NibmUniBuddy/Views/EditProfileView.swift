@@ -2,7 +2,7 @@ import SwiftUI
 import PhotosUI
 
 struct EditProfileView: View {
-    @Binding var profile: Profile
+    @ObservedObject var store: ProfileStore
     @Environment(\.presentationMode) var presentationMode
 
     @State private var selectedItem: PhotosPickerItem? = nil
@@ -14,10 +14,10 @@ struct EditProfileView: View {
                     HStack {
                         Spacer()
                         ZStack {
-                            // Show current or default image
+                        
                             Group {
-                                if let imageData = profile.imageData,
-                                   let uiImage = UIImage(data: imageData) {
+                                if let filename = store.profile.imageFilename,
+                                   let uiImage = store.loadImage(named: filename) {
                                     Image(uiImage: uiImage)
                                         .resizable()
                                         .aspectRatio(contentMode: .fill)
@@ -25,13 +25,13 @@ struct EditProfileView: View {
                                     Image(systemName: "person.crop.circle.fill")
                                         .resizable()
                                         .aspectRatio(contentMode: .fill)
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(.white)
                                 }
                             }
                             .frame(width: 100, height: 100)
                             .clipShape(Circle())
                             .shadow(radius: 5)
-                            // Pencil overlay for picking image
+                          
                             PhotosPicker(
                                 selection: $selectedItem,
                                 matching: .images,
@@ -42,8 +42,9 @@ struct EditProfileView: View {
                                     .frame(width: 100, height: 100)
                                     .overlay(
                                         Image(systemName: "pencil")
-                                            .foregroundColor(.white)
+                                            .foregroundColor(.gray)
                                             .font(.title)
+                                            
                                     )
                             }
                         }
@@ -51,14 +52,14 @@ struct EditProfileView: View {
                     }
                 }
                 Section(header: Text("Personal Info")) {
-                    TextField("Name", text: $profile.name)
-                    TextField("Email", text: $profile.email)
+                    TextField("Name", text: $store.profile.name)
+                    TextField("Email", text: $store.profile.email)
                 }
                 Section(header: Text("Details")) {
-                    TextField("Department", text: $profile.department)
-                    TextField("Student ID", text: $profile.studentID)
-                    TextField("Phone", text: $profile.phone)
-                    SecureField("Password", text: $profile.password)
+                    TextField("Department", text: $store.profile.department)
+                    TextField("Student ID", text: $store.profile.studentID)
+                    TextField("Phone", text: $store.profile.phone)
+                    SecureField("Password", text: $store.profile.password)
                 }
             }
             .navigationBarTitle("Edit Profile", displayMode: .inline)
@@ -69,7 +70,9 @@ struct EditProfileView: View {
                 if let newItem {
                     Task {
                         if let data = try? await newItem.loadTransferable(type: Data.self) {
-                            profile.imageData = data
+                            if let filename = store.saveImage(data) {
+                                store.profile.imageFilename = filename
+                            }
                         }
                     }
                 }
@@ -78,3 +81,10 @@ struct EditProfileView: View {
     }
 }
 
+struct EditProfileView_Previews: PreviewProvider {
+    @State static var sampleStore = ProfileStore()
+
+    static var previews: some View {
+        EditProfileView(store: sampleStore)
+    }
+}
