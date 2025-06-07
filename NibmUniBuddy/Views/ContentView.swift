@@ -4,8 +4,9 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
+                
                 // Profile Image
-                Image("profileImage") // Replace with actual asset name
+                Image("profileImage") // Replace with actual image asset name
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 100, height: 100)
@@ -24,6 +25,7 @@ struct ContentView: View {
                 // Details Grid (2 Columns)
                 VStack(spacing: 20) {
                     HStack(alignment: .top, spacing: 30) {
+                        
                         // Left Column
                         VStack(alignment: .leading, spacing: 20) {
                             HStack {
@@ -89,7 +91,7 @@ struct ContentView: View {
 
                 Spacer()
 
-                // Logout Button (centered and styled)
+                // Logout Button (centered and fixed width)
                 HStack {
                     Spacer()
                     Button(action: {
@@ -107,23 +109,28 @@ struct ContentView: View {
                 .padding(.bottom, 80)
             }
             .padding(.top)
-            .navigationBarTitle("Profile", displayMode: .inline)
             .navigationBarItems(leading:
                 Button(action: {
-                    // Handle back navigation
+                    // Handle back
                 }) {
                     Text("< Back")
                         .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.black)
                 }
             )
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Profile")
+                        .font(.system(size: 24, weight: .heavy))
+                        .foregroundColor(Color(red: 32/255, green: 64/255, blue: 133/255)) // #204085
+                        .padding(.top, 50) // Adjust vertical alignment if needed
+                }
+            }
             .onAppear {
+                // Optional background color setup
                 let appearance = UINavigationBarAppearance()
                 appearance.configureWithOpaqueBackground()
                 appearance.backgroundColor = UIColor.white
-                appearance.titleTextAttributes = [
-                    .font: UIFont.systemFont(ofSize: 20, weight: .bold),
-                    .foregroundColor: UIColor.black
-                ]
                 UINavigationBar.appearance().standardAppearance = appearance
                 UINavigationBar.appearance().scrollEdgeAppearance = appearance
             }
