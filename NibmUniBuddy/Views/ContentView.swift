@@ -5,13 +5,41 @@ struct ContentView: View {
         NavigationView {
             VStack(spacing: 20) {
                 
-                // Profile Image
-                Image("profileImage") // Replace with actual image asset name
+                // Profile Image - Option 1: Using SF Symbol as placeholder
+                Image(systemName: "person.crop.circle.fill")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 100, height: 100)
+                    .foregroundColor(.gray)
+                    .background(Color.gray.opacity(0.2))
+                    .clipShape(Circle())
+                    .shadow(radius: 5)
+                
+                // Alternative Option 2: If you have an actual image asset
+                // Make sure to add your image to Assets.xcassets first
+                /*
+                Image("ProfileImage") // Make sure this matches your asset name exactly
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 100, height: 100)
                     .clipShape(Circle())
                     .shadow(radius: 5)
+                */
+                
+                // Alternative Option 3: Using AsyncImage for web images
+                /*
+                AsyncImage(url: URL(string: "https://your-image-url.com/profile.jpg")) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Image(systemName: "person.crop.circle.fill")
+                        .foregroundColor(.gray)
+                }
+                .frame(width: 100, height: 100)
+                .clipShape(Circle())
+                .shadow(radius: 5)
+                */
 
                 // Name and Email
                 VStack(spacing: 5) {
@@ -109,12 +137,19 @@ struct ContentView: View {
                 .padding(.bottom, 80)
             }
             .padding(.top)
-            .navigationBarItems(leading:
-                Button(action: {
+            .navigationBarItems(
+                leading: Button(action: {
                     // Handle back
                 }) {
                     Text("< Back")
                         .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.black)
+                },
+                trailing: Button(action: {
+                    // Handle edit profile
+                }) {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.black)
                 }
             )
