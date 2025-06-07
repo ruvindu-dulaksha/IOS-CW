@@ -28,7 +28,7 @@ struct SignUpView: View {
             }
 
             if showImage {
-                Image("loginImage")
+                Image("SignUpImage")
                     .resizable()
                     .scaledToFit()
                     .frame(height: 200)
@@ -78,7 +78,7 @@ struct SignUpView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 30)
                     .padding(.top, 10)
-                    .fixedSize(horizontal: false, vertical: true)  // << add this
+                    .fixedSize(horizontal: false, vertical: true)
 
 
                 HStack {

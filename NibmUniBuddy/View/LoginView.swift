@@ -9,6 +9,8 @@ import SwiftUI
 
 struct LoginView: View {
     @State private var navigateToSignUp = false
+    @State private var navigateToForgetPassword = false
+
     @StateObject private var loginPresenter = LoginPresenter()
     
     @State private var showFields = false
@@ -52,11 +54,27 @@ struct LoginView: View {
                     }
                     .padding(.horizontal, 24)
                 }
+                HStack{
+                    Spacer()
+                    Button("Forget Password?"){
+                        navigateToForgetPassword = true
+
+                    }
+                    .font(.footnote)
+                    .foregroundColor(.subGreycolor)
+                    .padding(.horizontal)
+                    .padding(.trailing)
+                }
+                .navigationDestination(isPresented: $navigateToForgetPassword) {
+                    ForgetPasswordView()
+                        .navigationBarBackButtonHidden(true)
+                }
+
 
                 if showFields {
                     PrimaryButtonView(buttonText: "Login") {
                         loginPresenter.login()
-                        print("login")
+                       // print("login")
                     }
                     .padding(.horizontal, 24)
                 }
@@ -72,6 +90,7 @@ struct LoginView: View {
                     HStack {
                         Text("Don’t have an account?")
                             .font(.footnote)
+                            .foregroundColor(.subGreycolor)
                         Button("Sign Up") {
                             navigateToSignUp = true
                         }
@@ -94,7 +113,7 @@ struct LoginView: View {
             }
             .padding()
             .background(Color(.systemBackground).ignoresSafeArea())
-            // Modern navigationDestination usage
+           
             .navigationDestination(isPresented: $navigateToSignUp) {
                 SignUpView()
                     .navigationBarBackButtonHidden(true)
