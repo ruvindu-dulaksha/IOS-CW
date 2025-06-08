@@ -1,70 +1,5 @@
 import SwiftUI
 
-struct Profile: Codable {
-    var name: String
-    var email: String
-    var department: String
-    var studentID: String
-    var phone: String
-    var password: String
-    var imageFilename: String? 
-}
-
-class ProfileStore: ObservableObject {
-    @Published var profile: Profile {
-        didSet {
-            saveProfile()
-        }
-    }
-
-    static let profileKey = "user_profile"
-
-    init() {
-        if let data = UserDefaults.standard.data(forKey: Self.profileKey),
-           let profile = try? JSONDecoder().decode(Profile.self, from: data) {
-            self.profile = profile
-        } else {
-      
-            self.profile = Profile(
-                name: "Itunoluwa Abidoye",
-                email: "Itunoluwa@petra.africa",
-                department: "Technology",
-                studentID: "conbsn21.tp-033",
-                phone: "+98 1245560090",
-                password: "********",
-                imageFilename: nil
-            )
-        }
-    }
-
-    func saveProfile() {
-        if let data = try? JSONEncoder().encode(profile) {
-            UserDefaults.standard.set(data, forKey: Self.profileKey)
-        }
-    }
-
-    func saveImage(_ data: Data) -> String? {
-        let filename = UUID().uuidString + ".jpg"
-        let url = getDocumentsDirectory().appendingPathComponent(filename)
-        do {
-            try data.write(to: url)
-            return filename
-        } catch {
-            print("Failed to save image: \(error)")
-            return nil
-        }
-    }
-
-    func loadImage(named filename: String) -> UIImage? {
-        let url = getDocumentsDirectory().appendingPathComponent(filename)
-        return UIImage(contentsOfFile: url.path)
-    }
-
-    func getDocumentsDirectory() -> URL {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-    }
-}
-
 struct ContentView: View {
     @StateObject private var store = ProfileStore()
     @State private var showingEdit = false
@@ -72,7 +7,7 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-         
+
                 Group {
                     if let filename = store.profile.imageFilename,
                        let uiImage = store.loadImage(named: filename) {
@@ -89,7 +24,6 @@ struct ContentView: View {
                 .clipShape(Circle())
                 .shadow(radius: 5)
 
-           
                 VStack(spacing: 5) {
                     Text(store.profile.name)
                         .font(.headline)
@@ -98,10 +32,8 @@ struct ContentView: View {
                         .foregroundColor(.gray)
                 }
 
-
                 VStack(spacing: 20) {
                     HStack(alignment: .top, spacing: 30) {
-                      
                         VStack(alignment: .leading, spacing: 20) {
                             HStack {
                                 Image(systemName: "building.2.fill")
@@ -122,7 +54,7 @@ struct ContentView: View {
                                 }
                             }
                         }
-              
+
                         VStack(alignment: .leading, spacing: 20) {
                             HStack {
                                 Image(systemName: "phone.fill")
@@ -151,11 +83,10 @@ struct ContentView: View {
 
                 Spacer()
 
-                
                 HStack {
                     Spacer()
                     Button(action: {
-                      
+                        // Log Out action
                     }) {
                         Text("Log Out")
                             .foregroundColor(.white)
@@ -171,13 +102,15 @@ struct ContentView: View {
             .padding(.top)
             .navigationBarItems(
                 leading: Button(action: {
-               
+                    // Back action
                 }) {
                     Text("< Back")
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.black)
                 },
-                trailing: Button(action: { showingEdit = true }) {
+                trailing: Button(action: {
+                    showingEdit = true
+                }) {
                     Image(systemName: "pencil")
                         .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.black)

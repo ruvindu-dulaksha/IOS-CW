@@ -2,10 +2,12 @@ import SwiftUI
 import PhotosUI
 
 struct EditProfileView: View {
-    @ObservedObject var store: ProfileStore
     @Environment(\.presentationMode) var presentationMode
+    @StateObject private var presenter: EditProfilePresenter
 
-    @State private var selectedItem: PhotosPickerItem? = nil
+    init(store: ProfileStore) {
+        _presenter = StateObject(wrappedValue: EditProfilePresenter(store: store))
+    }
 
     var body: some View {
         NavigationView {
@@ -14,10 +16,8 @@ struct EditProfileView: View {
                     HStack {
                         Spacer()
                         ZStack {
-                        
                             Group {
-                                if let filename = store.profile.imageFilename,
-                                   let uiImage = store.loadImage(named: filename) {
+                                if let uiImage = presenter.loadProfileImage() {
                                     Image(uiImage: uiImage)
                                         .resizable()
                                         .aspectRatio(contentMode: .fill)
@@ -31,9 +31,9 @@ struct EditProfileView: View {
                             .frame(width: 100, height: 100)
                             .clipShape(Circle())
                             .shadow(radius: 5)
-                          
+
                             PhotosPicker(
-                                selection: $selectedItem,
+                                selection: $presenter.selectedItem,
                                 matching: .images,
                                 photoLibrary: .shared()
                             ) {
@@ -44,47 +44,41 @@ struct EditProfileView: View {
                                         Image(systemName: "pencil")
                                             .foregroundColor(.gray)
                                             .font(.title)
-                                            
                                     )
                             }
                         }
                         Spacer()
                     }
                 }
+
                 Section(header: Text("Personal Info")) {
-                    TextField("Name", text: $store.profile.name)
-                    TextField("Email", text: $store.profile.email)
+                    TextField("Name", text: $presenter.profile.name)
+                    TextField("Email", text: $presenter.profile.email)
                 }
+
                 Section(header: Text("Details")) {
-                    TextField("Department", text: $store.profile.department)
-                    TextField("Student ID", text: $store.profile.studentID)
-                    TextField("Phone", text: $store.profile.phone)
-                    SecureField("Password", text: $store.profile.password)
+                    TextField("Department", text: $presenter.profile.department)
+                    TextField("Student ID", text: $presenter.profile.studentID)
+                    TextField("Phone", text: $presenter.profile.phone)
+                    SecureField("Password", text: $presenter.profile.password)
                 }
             }
             .navigationBarTitle("Edit Profile", displayMode: .inline)
             .navigationBarItems(trailing: Button("Done") {
+                presenter.updateProfile()
                 presentationMode.wrappedValue.dismiss()
             })
-            .onChange(of: selectedItem) { newItem in
-                if let newItem {
-                    Task {
-                        if let data = try? await newItem.loadTransferable(type: Data.self) {
-                            if let filename = store.saveImage(data) {
-                                store.profile.imageFilename = filename
-                            }
-                        }
-                    }
+            .onChange(of: presenter.selectedItem) { newItem in
+                Task {
+                    await presenter.handleImageSelection(newItem)
                 }
             }
         }
     }
 }
 
-struct EditProfileView_Previews: PreviewProvider {
-    @State static var sampleStore = ProfileStore()
-
-    static var previews: some View {
-        EditProfileView(store: sampleStore)
-    }
+#Preview {
+    let store = ProfileStore()
+    EditProfileView(store: store)
 }
+
