@@ -144,19 +144,38 @@ struct ReservationCardView: View {
     let lab: Lab
     var body: some View {
         ZStack {
-            Image(lab.imageName).resizable().aspectRatio(contentMode: .fill).frame(width: 160, height: 160).clipped()
-            Rectangle().foregroundColor(.black).opacity(0.4)
-            Text(lab.name).font(.title2).fontWeight(.bold).foregroundColor(.white).multilineTextAlignment(.center)
-        }.frame(width: 160, height: 160).cornerRadius(12).shadow(radius: 5)
+            Image(lab.imageName)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 160, height: 200) // Change height here
+                .clipped()
+            Rectangle()
+                .foregroundColor(.black)
+                .opacity(0.4)
+            Text(lab.name)
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+        }
+        .frame(width: 160, height: 140) // Also change the outer frame height
+        .cornerRadius(12)
+        .shadow(radius: 5)
     }
 }
+
 
 // --- GRID VIEW UPDATED: ScrollView added ---
 struct ItemGridView: View {
     @Binding var items: [ReservableItem]
     var onSelectItem: (ReservableItem) -> Void
     let brandColor: Color
-    private let columns = [GridItem(.flexible()), GridItem(.flexible())]
+    
+    // Adjust horizontal spacing between columns here
+    private let columns = [
+        GridItem(.flexible(), spacing: 40), // Horizontal spacing between columns
+        GridItem(.flexible(), spacing: 40)
+    ]
     
     var body: some View {
         VStack {
@@ -165,14 +184,14 @@ struct ItemGridView: View {
                 .foregroundColor(brandColor)
                 .padding(.top)
 
-            // The grid is now wrapped in a ScrollView to handle overflow.
             ScrollView {
-                LazyVGrid(columns: columns, spacing: 20) {
+                // Adjust vertical spacing between rows here
+                LazyVGrid(columns: columns, spacing: 40) { // Vertical spacing between rows
                     ForEach($items) { $item in
                         ItemStatusView(item: item, onBook: { onSelectItem(item) }, brandColor: brandColor)
                     }
                 }
-                .padding() // Padding inside the scroll view content
+                .padding()
             }
         }
     }
@@ -191,7 +210,7 @@ struct ItemStatusView: View {
             case .reserved: Image(systemName: iconName).font(.system(size: 40)).foregroundColor(.red)
             case .bookedByMe: Image(systemName: iconName).font(.system(size: 40)).foregroundColor(.green)
             }
-        }.frame(minHeight: 150).frame(maxWidth: .infinity).background(RoundedRectangle(cornerRadius: 15).stroke(style: StrokeStyle(lineWidth: 2, dash: [6])).foregroundColor(.gray.opacity(0.5)))
+        }.frame(minHeight: 150).frame(maxWidth: .infinity).background(RoundedRectangle(cornerRadius: 15).stroke(style: StrokeStyle(lineWidth: 2, dash: [6])).foregroundColor(Color(red: 0/255, green: 64/255, blue: 221/255)))
     }
 }
 
