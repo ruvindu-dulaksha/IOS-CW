@@ -6,10 +6,10 @@ struct ScheduleView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // Top bar
+               
                 HStack {
                     Button(action: {
-                        // Notification action
+                        
                     }) {
                         Image(systemName: "bell")
                             .foregroundColor(.black)
@@ -30,7 +30,7 @@ struct ScheduleView: View {
                     Spacer()
 
                     Button(action: {
-                        // Profile action
+                        
                     }) {
                         Image(systemName: "person.crop.circle.fill")
                             .foregroundColor(.blue)
@@ -41,7 +41,7 @@ struct ScheduleView: View {
                 .padding(.vertical, 15)
                 .background(Color.white)
 
-                // Schedule list
+               
                 ScrollView {
                     LazyVStack(spacing: 8) {
                         ForEach(presenter.scheduleItems) { item in
