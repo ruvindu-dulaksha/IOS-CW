@@ -1,127 +1,241 @@
 import SwiftUI
 
-// 1. Data Model for Reservation Items
-struct ReservationItem: Identifiable {
+// MARK: - Data Models (Restructured for Multiple Labs)
+
+// A generic model for any item that can be reserved (PC, Mac, etc.)
+struct ReservableItem: Identifiable {
+    let id = UUID()
+    var name: String
+    var status: ItemStatus
+}
+
+enum ItemStatus {
+    case available, reserved, bookedByMe
+}
+
+// The Lab model now holds its own array of reservable items.
+struct Lab: Identifiable {
     let id = UUID()
     let name: String
     let imageName: String
-    let destinationView: AnyView
+    var items: [ReservableItem]
 }
 
-// 2. Reusable Card View
-struct ReservationCardView: View {
-    let item: ReservationItem
+// MARK: - Main Reservation View
+
+struct ReservationView: View {
+    // A single source of truth for all labs and their associated items.
+    @State private var labs: [Lab] = [
+        Lab(name: "Computer\nlab", imageName: "computer_lab_bg", items: [
+            ReservableItem(name: "PC-01", status: .available),
+            ReservableItem(name: "PC-02", status: .reserved),
+            ReservableItem(name: "PC-03", status: .available),
+            ReservableItem(name: "PC-04", status: .available)
+        ]),
+        Lab(name: "IOS\nlab", imageName: "mac-lab", items: [
+            ReservableItem(name: "iMac-A", status: .available),
+            ReservableItem(name: "iMac-B", status: .available),
+            ReservableItem(name: "iMac-C", status: .reserved),
+            ReservableItem(name: "Mac Studio", status: .available)
+        ])
+    ]
+
+    @State private var selectedLabID: UUID?
+    @State private var showingReservationPopup = false
+    @State private var selectedItem: ReservableItem?
+
+    let brandColor = Color(red: 25/255, green: 55/255, blue: 109/255)
+    @Environment(\.dismiss) var dismiss
+    
+    // A computed property to safely find the index of the selected lab.
+    private var selectedLabIndex: Int? {
+        labs.firstIndex { $0.id == selectedLabID }
+    }
 
     var body: some View {
         ZStack {
-            // This now correctly loads your images from the Asset Catalog
-            Image(item.imageName)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 160, height: 160)
-                .clipped()
+            VStack(spacing: 24) {
+                HeaderView(brandColor: brandColor, dismissAction: { dismiss() })
 
-            Rectangle()
-                .foregroundColor(.black)
-                .opacity(0.4)
-                .frame(width: 160, height: 160)
+                HStack(spacing: 20) {
+                    ForEach(labs) { lab in
+                        Button(action: {
+                            withAnimation(.spring()) {
+                                selectedLabID = (selectedLabID == lab.id) ? nil : lab.id
+                            }
+                        }) { ReservationCardView(lab: lab) }
+                    }
+                }
+                .padding(.horizontal)
 
-            Text(item.name)
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .multilineTextAlignment(.center)
+                // The grid view is now created dynamically using the selected lab's data.
+                if let index = selectedLabIndex {
+                    ItemGridView(
+                        items: $labs[index].items, // Pass a binding to the correct item list
+                        onSelectItem: { item in
+                            self.selectedItem = item
+                            withAnimation(.spring()) { self.showingReservationPopup = true }
+                        },
+                        brandColor: brandColor
+                    )
+                    .transition(.opacity.combined(with: .scale(scale: 0.95, anchor: .top)))
+                }
+                Spacer()
+            }
+            .background(Color(.systemGroupedBackground))
+
+            if showingReservationPopup {
+                VisualEffectBlur(blurStyle: .systemUltraThinMaterial).ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.spring()) { showingReservationPopup = false }
+                    }
+
+                ReservationPopupView(
+                    isPresented: $showingReservationPopup,
+                    itemName: selectedItem?.name ?? "Device",
+                    onReserve: { fromDate, toDate in
+                        reserveItem(itemId: selectedItem?.id, fromDate: fromDate, toDate: toDate)
+                    }
+                )
+                .transition(.scale.combined(with: .opacity))
+            }
         }
-        .frame(width: 160, height: 160)
-        .cornerRadius(12)
-        .shadow(color: .gray.opacity(0.3), radius: 5, x: 0, y: 5)
+        .navigationBarHidden(true)
+    }
+
+    private func reserveItem(itemId: UUID?, fromDate: Date, toDate: Date) {
+        guard let itemId = itemId, let labIndex = selectedLabIndex else { return }
+        
+        // Find the index of the item within the selected lab's item list.
+        if let itemIndex = labs[labIndex].items.firstIndex(where: { $0.id == itemId }) {
+            // Create a new copy of the item and update its status.
+            var updatedItem = labs[labIndex].items[itemIndex]
+            updatedItem.status = .bookedByMe
+            
+            // Replace the old item in the array to trigger UI refresh.
+            labs[labIndex].items[itemIndex] = updatedItem
+        }
     }
 }
 
-// 3. Main Reservation Screen
-struct ReservationView: View {
-    @Environment(\.presentationMode) var presentationMode
+// MARK: - Reusable Components
 
-    // --- THIS IS THE UPDATED PART ---
-    // The `imageName` values now match your Asset Catalog names.
-    let labItems: [ReservationItem] = [
-        ReservationItem(name: "Computer\nlab",
-                        imageName: "higher-education-with-students-and-policy-concept-modern-office-space-featuring-rows-of-computers-on-desks-in-a-well-lit-environment-photo", 
-                        destinationView: AnyView(LabDetailView(labName: "Computer Lab"))),
-        
-        ReservationItem(name: "IOS\nlab",
-                        imageName: "mac-lab", // Use the "mac-lab" asset you already have
-                        destinationView: AnyView(LabDetailView(labName: "IOS Lab")))
-    ]
+struct HeaderView: View {
+    let brandColor: Color
+    let dismissAction: () -> Void
+    var body: some View {
+        ZStack {
+            Text("Reservation").font(.title2).fontWeight(.bold).foregroundColor(brandColor)
+            HStack {
+                Button(action: dismissAction) {
+                    HStack(spacing: 4) { Image(systemName: "chevron.left"); Text("Back") }
+                    .foregroundColor(brandColor)
+                }
+                Spacer()
+            }
+        }.padding()
+    }
+}
+
+struct ReservationCardView: View {
+    let lab: Lab
+    var body: some View {
+        ZStack {
+            Image(lab.imageName).resizable().aspectRatio(contentMode: .fill).frame(width: 160, height: 160).clipped()
+            Rectangle().foregroundColor(.black).opacity(0.4)
+            Text(lab.name).font(.title2).fontWeight(.bold).foregroundColor(.white).multilineTextAlignment(.center)
+        }.frame(width: 160, height: 160).cornerRadius(12).shadow(radius: 5)
+    }
+}
+
+struct ItemGridView: View {
+    @Binding var items: [ReservableItem] // Now accepts a binding to any list of items
+    var onSelectItem: (ReservableItem) -> Void
+    let brandColor: Color
+    private let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
+    var body: some View {
+        VStack {
+            Text("Select your device").font(.headline).foregroundColor(brandColor).padding(.top)
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 20) {
+                    ForEach($items) { $item in
+                        ItemStatusView(item: item, onBook: { onSelectItem(item) }, brandColor: brandColor)
+                    }
+                }.padding()
+            }
+        }
+    }
+}
+
+struct ItemStatusView: View {
+    let item: ReservableItem
+    var onBook: () -> Void
+    let brandColor: Color
+    var body: some View {
+        VStack(spacing: 15) {
+            Text(item.name).font(.headline).fontWeight(.medium).padding(.horizontal, 16).padding(.vertical, 8).background(Color(.systemGray5)).clipShape(Capsule())
+            
+            // Use a generic icon that works for both PCs and Macs
+            let iconName = item.name.lowercased().contains("imac") ? "desktopcomputer" : "display"
+            
+            switch item.status {
+            case .available: Button("Book") { onBook() }.fontWeight(.semibold).foregroundColor(.white).padding(.vertical, 10).padding(.horizontal, 40).background(brandColor).clipShape(Capsule())
+            case .reserved: Image(systemName: iconName).font(.system(size: 40)).foregroundColor(.red)
+            case .bookedByMe: Image(systemName: iconName).font(.system(size: 40)).foregroundColor(.green)
+            }
+        }.frame(minHeight: 150).frame(maxWidth: .infinity).background(RoundedRectangle(cornerRadius: 15).stroke(style: StrokeStyle(lineWidth: 2, dash: [6])).foregroundColor(.gray.opacity(0.5)))
+    }
+}
+
+// MARK: - Pop-up and Blur Effect Views
+
+struct ReservationPopupView: View {
+    @Binding var isPresented: Bool
+    let itemName: String
+    var onReserve: (Date, Date) -> Void
+    
+    @State private var fromDate = Date()
+    @State private var toDate = Date()
     let brandColor = Color(red: 25/255, green: 55/255, blue: 109/255)
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                // For the background pattern, you'll need to add another image
-                // to your assets and name it "background_pattern".
-                Image("background_pattern")
-                    .resizable()
-                    .scaledToFill()
-                    .ignoresSafeArea()
-                    .opacity(0.1)
-
-                VStack(spacing: 24) {
-                    ZStack {
-                        HStack {
-                            Text("Reservation")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(brandColor)
-                        }
-                        .frame(maxWidth: .infinity)
-
-                        HStack {
-                            Button(action: {
-                                presentationMode.wrappedValue.dismiss()
-                            }) {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "chevron.left")
-                                    Text("Back")
-                                }
-                                .foregroundColor(brandColor)
-                            }
-                            Spacer()
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.top)
-
-                    HStack(spacing: 20) {
-                        ForEach(labItems) { item in
-                            NavigationLink(destination: item.destinationView) {
-                                ReservationCardView(item: item)
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-
-                    Spacer()
+        VStack(spacing: 25) {
+            Text("Reserve for \(itemName)").font(.headline).fontWeight(.bold)
+            VStack(alignment: .leading, spacing: 10) {
+                Text("From").font(.subheadline).foregroundColor(.secondary)
+                HStack {
+                    DatePicker("", selection: $fromDate, displayedComponents: .date).datePickerStyle(.compact).labelsHidden().padding(8).background(Color(.systemGray6)).cornerRadius(8)
+                    DatePicker("", selection: $fromDate, displayedComponents: .hourAndMinute).datePickerStyle(.compact).labelsHidden().padding(8).background(Color(.systemGray6)).cornerRadius(8).environment(\.locale, Locale(identifier: "en_US"))
                 }
             }
-            .navigationBarHidden(true)
+            VStack(alignment: .leading, spacing: 10) {
+                Text("To").font(.subheadline).foregroundColor(.secondary)
+                HStack {
+                    DatePicker("", selection: $toDate, in: fromDate..., displayedComponents: .date).datePickerStyle(.compact).labelsHidden().padding(8).background(Color(.systemGray6)).cornerRadius(8)
+                    DatePicker("", selection: $toDate, in: fromDate..., displayedComponents: .hourAndMinute).datePickerStyle(.compact).labelsHidden().padding(8).background(Color(.systemGray6)).cornerRadius(8).environment(\.locale, Locale(identifier: "en_US"))
+                }
+            }
+            Button("Confirm") {
+                onReserve(fromDate, toDate)
+                withAnimation(.spring()) { isPresented = false }
+            }.fontWeight(.semibold).foregroundColor(.white).padding().frame(maxWidth: .infinity).background(brandColor).clipShape(Capsule())
+        }
+        .padding(25).frame(width: 340).background(.background).cornerRadius(20).shadow(radius: 20)
+        .onChange(of: fromDate) { newValue in
+            if toDate < newValue { toDate = newValue }
         }
     }
 }
 
-// --- Placeholder Destination View ---
-struct LabDetailView: View {
-    let labName: String
-    var body: some View {
-        Text("Details for \(labName)")
-            .font(.title)
-            .navigationTitle(labName)
-            .navigationBarTitleDisplayMode(.inline)
-    }
+struct VisualEffectBlur: UIViewRepresentable {
+    var blurStyle: UIBlurEffect.Style
+    func makeUIView(context: Context) -> UIVisualEffectView { UIVisualEffectView(effect: UIBlurEffect(style: blurStyle)) }
+    func updateUIView(_ uiView: UIVisualEffectView, context: Context) { uiView.effect = UIBlurEffect(style: blurStyle) }
 }
 
-// --- Preview Provider ---
+// MARK: - Preview Provider
+
 struct ReservationView_Previews: PreviewProvider {
     static var previews: some View {
         ReservationView()
