@@ -1,8 +1,7 @@
 import SwiftUI
 
-// MARK: - Data Models (Restructured for Multiple Labs)
+// MARK: - Data Models
 
-// A generic model for any item that can be reserved (PC, Mac, etc.)
 struct ReservableItem: Identifiable {
     let id = UUID()
     var name: String
@@ -13,7 +12,6 @@ enum ItemStatus {
     case available, reserved, bookedByMe
 }
 
-// The Lab model now holds its own array of reservable items.
 struct Lab: Identifiable {
     let id = UUID()
     let name: String
@@ -24,19 +22,27 @@ struct Lab: Identifiable {
 // MARK: - Main Reservation View
 
 struct ReservationView: View {
-    // A single source of truth for all labs and their associated items.
+    // --- DATA UPDATED: More items added to the first lab ---
     @State private var labs: [Lab] = [
         Lab(name: "Computer\nlab", imageName: "computer_lab_bg", items: [
             ReservableItem(name: "PC-01", status: .available),
             ReservableItem(name: "PC-02", status: .reserved),
             ReservableItem(name: "PC-03", status: .available),
-            ReservableItem(name: "PC-04", status: .available)
+            ReservableItem(name: "PC-04", status: .reserved),
+            ReservableItem(name: "PC-05", status: .available), // New
+            ReservableItem(name: "PC-06", status: .available), // New
+            ReservableItem(name: "PC-07", status: .reserved), // New
+            ReservableItem(name: "PC-08", status: .available)  // New
         ]),
         Lab(name: "IOS\nlab", imageName: "mac-lab", items: [
             ReservableItem(name: "iMac-A", status: .available),
-            ReservableItem(name: "iMac-B", status: .available),
+            ReservableItem(name: "iMac-B", status: .reserved),
             ReservableItem(name: "iMac-C", status: .reserved),
-            ReservableItem(name: "Mac Studio", status: .available)
+            ReservableItem(name: "iMac-D", status: .available),
+            ReservableItem(name: "iMac-E", status: .available),
+            ReservableItem(name: "iMac-F", status: .available),
+            ReservableItem(name: "iMac-G", status: .reserved),
+            ReservableItem(name: "iMac-H", status: .available)
         ])
     ]
 
@@ -47,7 +53,6 @@ struct ReservationView: View {
     let brandColor = Color(red: 25/255, green: 55/255, blue: 109/255)
     @Environment(\.dismiss) var dismiss
     
-    // A computed property to safely find the index of the selected lab.
     private var selectedLabIndex: Int? {
         labs.firstIndex { $0.id == selectedLabID }
     }
@@ -68,10 +73,9 @@ struct ReservationView: View {
                 }
                 .padding(.horizontal)
 
-                // The grid view is now created dynamically using the selected lab's data.
                 if let index = selectedLabIndex {
                     ItemGridView(
-                        items: $labs[index].items, // Pass a binding to the correct item list
+                        items: $labs[index].items,
                         onSelectItem: { item in
                             self.selectedItem = item
                             withAnimation(.spring()) { self.showingReservationPopup = true }
@@ -80,7 +84,11 @@ struct ReservationView: View {
                     )
                     .transition(.opacity.combined(with: .scale(scale: 0.95, anchor: .top)))
                 }
-                Spacer()
+                
+                // The spacer is now less critical but good for collapsing state.
+                if selectedLabID == nil {
+                    Spacer()
+                }
             }
             .background(Color(.systemGroupedBackground))
 
@@ -104,17 +112,12 @@ struct ReservationView: View {
     }
 
     private func reserveItem(itemId: UUID?, fromDate: Date, toDate: Date) {
-        guard let itemId = itemId, let labIndex = selectedLabIndex else { return }
+        guard let itemId = itemId, let labIndex = selectedLabIndex,
+              let itemIndex = labs[labIndex].items.firstIndex(where: { $0.id == itemId }) else { return }
         
-        // Find the index of the item within the selected lab's item list.
-        if let itemIndex = labs[labIndex].items.firstIndex(where: { $0.id == itemId }) {
-            // Create a new copy of the item and update its status.
-            var updatedItem = labs[labIndex].items[itemIndex]
-            updatedItem.status = .bookedByMe
-            
-            // Replace the old item in the array to trigger UI refresh.
-            labs[labIndex].items[itemIndex] = updatedItem
-        }
+        var updatedItem = labs[labIndex].items[itemIndex]
+        updatedItem.status = .bookedByMe
+        labs[labIndex].items[itemIndex] = updatedItem
     }
 }
 
@@ -148,21 +151,28 @@ struct ReservationCardView: View {
     }
 }
 
+// --- GRID VIEW UPDATED: ScrollView added ---
 struct ItemGridView: View {
-    @Binding var items: [ReservableItem] // Now accepts a binding to any list of items
+    @Binding var items: [ReservableItem]
     var onSelectItem: (ReservableItem) -> Void
     let brandColor: Color
     private let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
     var body: some View {
         VStack {
-            Text("Select your device").font(.headline).foregroundColor(brandColor).padding(.top)
+            Text("Select your device")
+                .font(.headline)
+                .foregroundColor(brandColor)
+                .padding(.top)
+
+            // The grid is now wrapped in a ScrollView to handle overflow.
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 20) {
                     ForEach($items) { $item in
                         ItemStatusView(item: item, onBook: { onSelectItem(item) }, brandColor: brandColor)
                     }
-                }.padding()
+                }
+                .padding() // Padding inside the scroll view content
             }
         }
     }
@@ -175,10 +185,7 @@ struct ItemStatusView: View {
     var body: some View {
         VStack(spacing: 15) {
             Text(item.name).font(.headline).fontWeight(.medium).padding(.horizontal, 16).padding(.vertical, 8).background(Color(.systemGray5)).clipShape(Capsule())
-            
-            // Use a generic icon that works for both PCs and Macs
             let iconName = item.name.lowercased().contains("imac") ? "desktopcomputer" : "display"
-            
             switch item.status {
             case .available: Button("Book") { onBook() }.fontWeight(.semibold).foregroundColor(.white).padding(.vertical, 10).padding(.horizontal, 40).background(brandColor).clipShape(Capsule())
             case .reserved: Image(systemName: iconName).font(.system(size: 40)).foregroundColor(.red)
@@ -188,17 +195,15 @@ struct ItemStatusView: View {
     }
 }
 
-// MARK: - Pop-up and Blur Effect Views
+// MARK: - Pop-up and Blur Effect Views (No Changes Here)
 
 struct ReservationPopupView: View {
     @Binding var isPresented: Bool
     let itemName: String
     var onReserve: (Date, Date) -> Void
-    
     @State private var fromDate = Date()
     @State private var toDate = Date()
     let brandColor = Color(red: 25/255, green: 55/255, blue: 109/255)
-
     var body: some View {
         VStack(spacing: 25) {
             Text("Reserve for \(itemName)").font(.headline).fontWeight(.bold)
