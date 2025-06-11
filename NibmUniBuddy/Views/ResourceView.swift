@@ -6,14 +6,13 @@ struct ResourceView: View {
     @State private var selectedResourceID: UUID?
 
     var body: some View {
-        NavigationView {
+        NavigationView{
             VStack(alignment: .leading) {
                 Text("Our Resources")
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(Color("MainBlueColor"))
                     .padding(.bottom, 10)
-                    .padding(.leading)
                     .frame(maxWidth: .infinity, alignment: .center)
 
                 ScrollView {
