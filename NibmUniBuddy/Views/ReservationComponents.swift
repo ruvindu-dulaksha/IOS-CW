@@ -1,6 +1,5 @@
 import SwiftUI
 
-// MARK: - Reusable Components
 
 struct HeaderView: View {
     let brandColor: Color

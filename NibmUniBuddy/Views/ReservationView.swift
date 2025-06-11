@@ -1,7 +1,5 @@
 import SwiftUI
 
-// MARK: - Main Reservation View
-
 struct ReservationView: View {
     @StateObject private var presenter = ReservationPresenter()
     @Environment(\.dismiss) var dismiss
@@ -64,8 +62,6 @@ struct ReservationView: View {
         .navigationBarHidden(true)
     }
 }
-
-// MARK: - Preview Provider
 
 struct ReservationView_Previews: PreviewProvider {
     static var previews: some View {
