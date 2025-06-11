@@ -90,7 +90,7 @@ struct LocationFinderView: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                         .background(Color(red: 32/255.0, green: 64/255.0, blue: 133/255.0))
-                        .cornerRadius(25)
+                        .cornerRadius(5)
                 }
                 .padding(.horizontal, 16)
                 .disabled(presenter.model.currentLocation.isEmpty || presenter.model.targetLocation.isEmpty)

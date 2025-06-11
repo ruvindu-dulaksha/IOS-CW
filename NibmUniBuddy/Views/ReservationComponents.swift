@@ -101,6 +101,7 @@ struct ItemStatusView: View {
                 .padding(.vertical, 8)
                 .background(Color(.systemGray5))
                 .clipShape(Capsule())
+                .cornerRadius(5)
             
             let iconName = item.name.lowercased().contains("imac") ? "desktopcomputer" : "display"
             
@@ -114,7 +115,7 @@ struct ItemStatusView: View {
                 .padding(.vertical, 10)
                 .padding(.horizontal, 40)
                 .background(brandColor)
-                .clipShape(Capsule())
+                .cornerRadius(5)
                 
             case .reserved:
                 Image(systemName: iconName)
@@ -209,12 +210,12 @@ struct ReservationPopupView: View {
             .padding()
             .frame(maxWidth: .infinity)
             .background(brandColor)
-            .clipShape(Capsule())
+            .cornerRadius(5)
         }
         .padding(25)
         .frame(width: 340)
         .background(.background)
-        .cornerRadius(20)
+        .cornerRadius(5)
         .shadow(radius: 20)
         .onChange(of: fromDate) { newValue in
             if toDate < newValue {
