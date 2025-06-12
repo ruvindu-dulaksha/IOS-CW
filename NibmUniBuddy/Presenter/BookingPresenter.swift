@@ -3,24 +3,29 @@
 //  NibmUniBuddy
 //
 //  Created by fathima minzah on 2025-06-09.
-//
+
 
 import Foundation
 import Combine
 
 class BookingPresenter: ObservableObject {
-    @Published var name: String = ""
-    @Published var vehicleNumber: String = ""
-    @Published var selectedDuration: Int = 1
+    @Published var name = ""
+    @Published var vehicleNumber = ""
+    @Published var selectedDuration = 1
+    var slot: Slot
+    var onBookingComplete: ((Slot) -> Void)?
 
-    let slot: ParkingSlot
-
-    init(slot: ParkingSlot) {
+    init(slot: Slot, onBookingComplete: ((Slot) -> Void)? = nil) {
         self.slot = slot
+        self.onBookingComplete = onBookingComplete
     }
 
     func bookSlot() {
-        print("Booked \(slot.id) for \(name) - \(vehicleNumber) for \(selectedDuration) hour(s)")
-        // Add real booking logic here (networking/database/etc.)
+        slot.isBooked = true
+        slot.bookedBy = name
+        slot.vehicleNumber = vehicleNumber
+        slot.duration = selectedDuration
+
+        onBookingComplete?(slot)
     }
 }

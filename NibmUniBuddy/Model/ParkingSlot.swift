@@ -8,7 +8,11 @@
 
 import Foundation
 
-struct ParkingSlot: Identifiable {
+struct Slot: Identifiable {
     let id: String
     var isBooked: Bool = false
+    var bookedBy: String? = nil
+    var vehicleNumber: String? = nil
+    var duration: Int? = nil
 }
+

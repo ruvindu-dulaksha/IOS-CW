@@ -8,15 +8,17 @@
 import SwiftUI
 import Lottie
 
+
 struct SlotListView: View {
     @StateObject private var presenter = SlotListPresenter()
 
     var body: some View {
         NavigationView {
             VStack(spacing: 8) {
+
                 HStack {
                     Button(action: {
-                        
+
                     }) {
                         Text("< Back")
                             .foregroundColor(Color("subGreycolor"))
@@ -42,12 +44,29 @@ struct SlotListView: View {
                                 let rightSlot = presenter.slots[row * 2 + 1]
 
                                 ForEach([leftSlot, rightSlot], id: \.id) { slot in
-                                    VStack {
+                                    VStack(spacing: 8) {
                                         Text(slot.id)
                                             .font(.headline)
-                                        NavigationLink(
-                                            destination: BookingView(presenter: BookingPresenter(slot: slot)),
-                                            label: {
+
+                                        if slot.isBooked {
+                            
+                                            LottieView(filename: "running_car")
+                                                .frame(width: 50, height: 30)
+                                
+                                            Text("\(Int(slot.duration ?? 1)) hour\(slot.duration ?? 1 > 1 ? "s" : "")")
+                                                .font(.caption)
+                                                .foregroundColor(.gray)
+                                        } else {
+                                            NavigationLink(
+                                                destination: BookingView(
+                                                    presenter: BookingPresenter(
+                                                        slot: slot,
+                                                        onBookingComplete: { updatedSlot in
+                                                            presenter.updateSlot(updatedSlot)
+                                                        }
+                                                    )
+                                                )
+                                            ) {
                                                 Text("Book")
                                                     .padding(.vertical, 8)
                                                     .padding(.horizontal, 24)
@@ -55,7 +74,7 @@ struct SlotListView: View {
                                                     .foregroundColor(.white)
                                                     .cornerRadius(8)
                                             }
-                                        )
+                                        }
                                     }
                                     .frame(width: 130)
                                     .padding()
@@ -65,6 +84,7 @@ struct SlotListView: View {
                                     )
                                 }
                             }
+
                             if row < (presenter.slots.count / 2 - 1) {
                                 Image(systemName: "arrow.down")
                                     .resizable()
@@ -82,7 +102,7 @@ struct SlotListView: View {
                     .foregroundColor(.black)
                     .padding(.bottom)
             }
-            .navigationBarHidden(true) 
+            .navigationBarHidden(true)
         }
     }
 }
@@ -90,5 +110,3 @@ struct SlotListView: View {
 #Preview {
     SlotListView()
 }
-
-
