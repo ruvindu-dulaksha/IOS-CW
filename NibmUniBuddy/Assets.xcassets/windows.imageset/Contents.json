@@ -1,0 +1,21 @@
+{
+  "images" : [
+    {
+      "filename" : "higher-education-with-students-and-policy-concept-modern-office-space-featuring-rows-of-computers-on-desks-in-a-well-lit-environment-photo.jpeg",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
