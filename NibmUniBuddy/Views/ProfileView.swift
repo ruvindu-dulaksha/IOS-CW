@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ContentView: View {
+struct ProfileView: View {
     @StateObject private var store = ProfileStore()
     @State private var showingEdit = false
 
@@ -133,6 +133,6 @@ struct ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ProfileView()
     }
 }
