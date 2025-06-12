@@ -7,11 +7,12 @@
 
 import SwiftUI
 
+
 @main
 struct NibmUniBuddyApp: App {
     var body: some Scene {
         WindowGroup {
-           // ContentView()
+
         }
     }
 }
