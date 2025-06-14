@@ -2,9 +2,9 @@
 //  AnnouncementCardView.swift
 //  NibmUniBuddy
 //
-//  Updated with bottom sheet functionality
+//  Updated with bottom sheet functionality and Academic Resources button styling
 //
-
+import Foundation
 import SwiftUI
 
 struct AnnouncementCardView: View {
@@ -16,26 +16,31 @@ struct AnnouncementCardView: View {
         Button(action: {
             showingBottomSheet = true
         }) {
-            HStack(spacing: 12) {
-                // Icon
+            HStack(spacing: 16) {
+               
                 Image(systemName: announcement.icon)
-                    .font(.system(size: 18, weight: .medium))
+                    .font(.title2)
                     .foregroundColor(.white)
-                    .frame(width: 40, height: 40)
+                    .frame(width: 50, height: 50)
                     .background(
                         Circle()
-                            .fill(Color.accentColor)
+                            .fill(LinearGradient(
+                                gradient: Gradient(colors: [.mainBlue, .blue]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
                     )
                 
-                // Content
-                VStack(alignment: .leading, spacing: 2) {
+              
+                VStack(alignment: .leading, spacing: 4) {
                     Text(announcement.title)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.headline)
+                        .fontWeight(.semibold)
                         .foregroundColor(.primary)
                         .multilineTextAlignment(.leading)
                     
                     Text(announcement.description)
-                        .font(.system(size: 14))
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.leading)
                         .lineLimit(2)
@@ -43,16 +48,17 @@ struct AnnouncementCardView: View {
                 
                 Spacer()
                 
-                // Arrow
+                
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.subGreycolor)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.mainBlue)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(Color(.systemBackground))
-            .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.05), radius: 1, x: 0, y: 1)
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(.systemBackground))
+                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+            )
         }
         .buttonStyle(PlainButtonStyle())
         .sheet(isPresented: $showingBottomSheet) {
@@ -61,15 +67,13 @@ struct AnnouncementCardView: View {
     }
 }
 
-
-
 struct AnnouncementDetailBottomSheet: View {
     let announcement: AnnouncementItem
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         VStack(spacing: 0) {
-            // Top bar with dismiss button (like a sheet header)
+            
             HStack {
                 Button {
                     dismiss()
@@ -90,22 +94,22 @@ struct AnnouncementDetailBottomSheet: View {
             
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 20) {
-                    // Announcement Image
-                    Image("announcementImage") // Replace with real image name or dynamic source
+                    
+                    Image("announcementImage")
                         .resizable()
-                        .aspectRatio(contentMode: .fit) // fit instead of fill, no clipping
+                        .aspectRatio(contentMode: .fit)
                         .frame(maxWidth: UIScreen.main.bounds.width * 0.85)
                         .cornerRadius(18)
                         .shadow(color: Color.black.opacity(0.12), radius: 10, x: 0, y: 6)
                         .padding(.horizontal)
                     
-                    // Title
+                    
                     Text(announcement.title)
                         .font(.title2.weight(.bold))
                         .foregroundColor(.primary)
                         .padding(.horizontal)
                     
-                    // Description (allow multiline, scrollable if too long)
+                
                     Text(announcement.description)
                         .font(.body)
                         .foregroundColor(.secondary)
@@ -116,10 +120,10 @@ struct AnnouncementDetailBottomSheet: View {
             }
         }
         .background(
-            // Add a smooth background with material + solid color fallback
+           
             ZStack {
                 Color(UIColor.systemBackground)
-                VisualEffectBlur(blurStyle: .systemMaterial) // Optional custom blur view
+                VisualEffectBlur(blurStyle: .systemMaterial)
             }
             .ignoresSafeArea()
         )
@@ -127,11 +131,10 @@ struct AnnouncementDetailBottomSheet: View {
         .presentationDragIndicator(.visible)
         .cornerRadius(28, corners: [.topLeft, .topRight])
         .shadow(color: Color.black.opacity(0.15), radius: 25, x: 0, y: -10)
-        .padding(.top, 10) // push sheet content down a bit for better visual balance
+        .padding(.top, 10)
     }
 }
 
-// Helper extension to round specific corners
 fileprivate extension View {
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
         clipShape( RoundedCorner(radius: radius, corners: corners) )
@@ -149,18 +152,3 @@ fileprivate struct RoundedCorner: Shape {
         return Path(path.cgPath)
     }
 }
-
-// Optional: VisualEffectBlur wrapper for UIKit UIBlurEffect if you want nicer blur background
-// You can remove this and just keep Color(UIColor.systemBackground) if you want simpler code.
-struct VisualEffectBlur: UIViewRepresentable {
-    var blurStyle: UIBlurEffect.Style
-
-    func makeUIView(context: Context) -> UIVisualEffectView {
-        return UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
-    }
-
-    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
-        uiView.effect = UIBlurEffect(style: blurStyle)
-    }
-}
-

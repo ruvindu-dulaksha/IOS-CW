@@ -12,16 +12,10 @@ struct HeaderView: View {
                 .fontWeight(.bold)
                 .foregroundColor(brandColor)
             
-            HStack {
-                Button(action: dismissAction) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "chevron.left")
-                        Text("Back")
-                    }
-                    .foregroundColor(brandColor)
-                }
+            
+                
                 Spacer()
-            }
+            
         }
         .padding()
     }
@@ -225,14 +219,4 @@ struct ReservationPopupView: View {
     }
 }
 
-struct VisualEffectBlur: UIViewRepresentable {
-    var blurStyle: UIBlurEffect.Style
-    
-    func makeUIView(context: Context) -> UIVisualEffectView {
-        UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
-    }
-    
-    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {
-        uiView.effect = UIBlurEffect(style: blurStyle)
-    }
-}
+

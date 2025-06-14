@@ -12,7 +12,7 @@ import SwiftUI
 struct NibmUniBuddyApp: App {
     var body: some Scene {
         WindowGroup {
-
+            SplashView()
         }
     }
 }

@@ -1,7 +1,6 @@
 import Foundation
 import SwiftUI
 
-// MARK: - Presenter Protocol
 
 protocol ReservationPresenterProtocol: ObservableObject {
     var labs: [Lab] { get }
@@ -16,8 +15,6 @@ protocol ReservationPresenterProtocol: ObservableObject {
     func reserveItem(fromDate: Date, toDate: Date)
     func dismissReservationPopup()
 }
-
-// MARK: - Presenter Implementation
 
 class ReservationPresenter: ReservationPresenterProtocol {
     @Published var labs: [Lab] = []
@@ -65,7 +62,7 @@ class ReservationPresenter: ReservationPresenterProtocol {
         )
         
         if success {
-            loadLabs() // Refresh data
+            loadLabs() 
         }
         
         dismissReservationPopup()

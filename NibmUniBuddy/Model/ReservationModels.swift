@@ -1,6 +1,5 @@
 import Foundation
 
-// MARK: - Data Models
 
 struct ReservableItem: Identifiable {
     let id = UUID()
@@ -19,14 +18,12 @@ struct Lab: Identifiable {
     var items: [ReservableItem]
 }
 
-// MARK: - Repository Protocol
 
 protocol ReservationRepositoryProtocol {
     func getLabs() -> [Lab]
     func reserveItem(itemId: UUID, labId: UUID, fromDate: Date, toDate: Date) -> Bool
 }
 
-// MARK: - Repository Implementation
 
 class ReservationRepository: ReservationRepositoryProtocol {
     private var labs: [Lab] = [

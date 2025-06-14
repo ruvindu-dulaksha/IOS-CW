@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ScheduleCard: View {
-    let item: ScheduleItem
+    @Binding var item: ScheduleItem
     @State private var isPressed = false
 
     var body: some View {
@@ -26,7 +26,7 @@ struct ScheduleCard: View {
                 VStack(alignment: .trailing, spacing: 4) {
                     Text(item.courseTitle)
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.blue)
+                        .foregroundColor(.mainBlue)
                         .multilineTextAlignment(.trailing)
 
                     Text(item.instructor)

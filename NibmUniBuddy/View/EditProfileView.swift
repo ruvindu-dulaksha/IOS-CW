@@ -81,4 +81,3 @@ struct EditProfileView: View {
     let store = ProfileStore()
     EditProfileView(store: store)
 }
-

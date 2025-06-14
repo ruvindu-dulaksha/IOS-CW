@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ScheduleView: View {
+struct ScheduleItemView: View {
     @StateObject private var presenter = ScheduleViewModel()
     
     var body: some View {
@@ -44,7 +44,7 @@ struct ScheduleView: View {
                
                 ScrollView {
                     LazyVStack(spacing: 8) {
-                        ForEach(presenter.scheduleItems) { item in
+                        ForEach($presenter.scheduleItems) { item in
                             ScheduleCard(item: item)
                         }
                     }
@@ -62,6 +62,6 @@ struct ScheduleView: View {
 
 struct ScheduleView_Previews: PreviewProvider {
     static var previews: some View {
-        ScheduleView()
+        ScheduleItemView()
     }
 }

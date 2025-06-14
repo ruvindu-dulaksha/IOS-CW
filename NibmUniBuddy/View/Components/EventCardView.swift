@@ -67,7 +67,7 @@ struct EventCardView: View {
         .buttonStyle(PlainButtonStyle())
         .sheet(isPresented: $showingEventDetail) {
             EventDetailSheet(event: event)
-                .presentationDetents([.fraction(0.9)]) // Custom height
+                .presentationDetents([.fraction(0.9)])
                         .presentationDragIndicator(.visible)
                         .presentationCornerRadius(24)
                         .presentationBackground(.regularMaterial)
@@ -75,7 +75,6 @@ struct EventCardView: View {
     }
 }
 
-// MARK: - Event Detail Sheet
 struct EventDetailSheet: View {
     let event: EventItem
     @Environment(\.dismiss) private var dismiss
@@ -88,7 +87,7 @@ struct EventDetailSheet: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 24) {
-                    // Event Image
+                    
                     VStack {
                         Image(systemName: event.icon)
                             .font(.system(size: 60, weight: .light))
@@ -106,9 +105,9 @@ struct EventDetailSheet: View {
                     }
                     .padding(.top, 20)
                     
-                    // Event Details
+                    
                     VStack(spacing: 20) {
-                        // Title and Date
+                        
                         VStack(spacing: 8) {
                             Text(event.title)
                                 .font(.title2)
@@ -128,7 +127,7 @@ struct EventDetailSheet: View {
                                 )
                         }
                         
-                        // Description
+                    
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
                                 Text("About Event")
@@ -145,7 +144,7 @@ struct EventDetailSheet: View {
                         }
                         .padding(.horizontal, 20)
                         
-                        // Event Details Cards
+                      
                         VStack(spacing: 12) {
                             EventDetailRow(
                                 icon: "calendar",
@@ -170,7 +169,7 @@ struct EventDetailSheet: View {
                         }
                         .padding(.horizontal, 20)
                         
-                        // Action Buttons
+                       
                         VStack(spacing: 12) {
                             Button(action: {
                                 addToCalendar()
@@ -241,7 +240,7 @@ struct EventDetailSheet: View {
         }
     }
     
-    // MARK: - Calendar Functions
+
     private func addToCalendar() {
         if #available(iOS 17.0, *) {
             eventStore.requestWriteOnlyAccessToEvents { granted, error in
@@ -290,12 +289,12 @@ struct EventDetailSheet: View {
         calendarEvent.notes = event.description
         calendarEvent.location = "NIBM Campus"
         
-        // Parse the date string and create proper start/end dates
+        
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMMM d, yyyy"
         
         if let eventDate = dateFormatter.date(from: event.date) {
-            // Set start time to 9:00 AM
+            
             let calendar = Calendar.current
             let startComponents = calendar.dateComponents([.year, .month, .day], from: eventDate)
             var startDateComponents = DateComponents()
@@ -310,7 +309,7 @@ struct EventDetailSheet: View {
                 calendarEvent.endDate = calendar.date(byAdding: .hour, value: 2, to: startDate) ?? startDate
             }
         } else {
-            // Fallback to current date if parsing fails
+            
             calendarEvent.startDate = Date()
             calendarEvent.endDate = Calendar.current.date(byAdding: .hour, value: 2, to: Date()) ?? Date()
         }
@@ -333,7 +332,6 @@ struct EventDetailSheet: View {
     }
 }
 
-// MARK: - EventKit UI Wrapper
 struct EventEditViewController: UIViewControllerRepresentable {
     let event: EKEvent
     let eventStore: EKEventStore
@@ -366,7 +364,6 @@ struct EventEditViewController: UIViewControllerRepresentable {
     }
 }
 
-// MARK: - Event Detail Row
 struct EventDetailRow: View {
     let icon: String
     let title: String

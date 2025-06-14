@@ -13,9 +13,10 @@ class HomePresenter: ObservableObject {
     @Published var currentTime: String = ""
     @Published var userName: String = ""
     @Published var greeting: String = ""
-    @Published var todaySchedule: [ScheduleItem] = []
+    @Published var todaySchedule: [TodayScheduleItem] = []
     @Published var announcements: [AnnouncementItem] = []
     @Published var upcomingEvents: [EventItem] = []
+    @Published var navigateToFullSchedule = false
     
     private var timer: AnyCancellable?
     
@@ -29,20 +30,15 @@ class HomePresenter: ObservableObject {
     }
     
     private func loadData() {
-       
         todaySchedule = HomeDataStorage.shared.getTodaySchedule()
         announcements = HomeDataStorage.shared.getAnnouncements()
         upcomingEvents = HomeDataStorage.shared.getUpcomingEvents()
         
-       
         setUserName()
-        
-        
         updateDateTime()
     }
     
     private func setUserName() {
-       
         let currentEmail = getCurrentUserEmail()
         if let emailPrefix = currentEmail.split(separator: "@").first {
             userName = String(emailPrefix).capitalized
@@ -54,7 +50,6 @@ class HomePresenter: ObservableObject {
     }
     
     private func getCurrentUserEmail() -> String {
-
         return UserDefaults.standard.string(forKey: "loggedInUserEmail") ?? "user@student.nibm.lk"
     }
     
@@ -91,18 +86,15 @@ class HomePresenter: ObservableObject {
             }
     }
     
-    func onScheduleItemTapped(_ item: ScheduleItem) {
-        
-        print("Schedule item tapped: \(item.title)")
+    func onScheduleItemTapped(_ item: TodayScheduleItem) {
+        navigateToFullSchedule = true
     }
     
     func onEventItemTapped(_ item: EventItem) {
-       
         print("Event item tapped: \(item.title)")
     }
     
     func onAnnouncementTapped(_ item: AnnouncementItem) {
-        
         print("Announcement tapped: \(item.title)")
     }
 }
